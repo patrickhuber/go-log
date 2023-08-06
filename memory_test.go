@@ -2,35 +2,27 @@ package log_test
 
 import (
 	"bytes"
+	"testing"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"github.com/patrickhuber/go-log"
+	"github.com/stretchr/testify/require"
 )
 
-var _ = Describe("Memory", func() {
-	var (
-		out bytes.Buffer
-	)
-	Describe("Debug", func() {
-		It("can log when debug set", func() {
-			logger := log.MemoryWith(&out, log.SetLevel(log.DebugLevel))
-			logger.Debug("test")
-			Expect(out.Len()).ToNot(BeZero())
-		})
-		It("does not log when error set", func() {
-			logger := log.MemoryWith(&out, log.SetLevel(log.ErrorLevel))
-			logger.Debug("test")
-			Expect(out.Len()).To(BeZero())
-		})
+func TestMemory(t *testing.T) {
+	t.Run("log when debug set", func(t *testing.T) {
+		var out bytes.Buffer
+		logger := log.MemoryWith(&out, log.SetLevel(log.DebugLevel))
+		logger.Debug("test")
+		require.NotEqual(t, 0, out.Len())
 	})
-	Describe("Level", func() {
-		It("can set", func() {
-			logger := log.Memory(log.SetLevel(log.FatalLevel))
-			Expect(logger.Level()).To(Equal(log.FatalLevel))
-		})
+	t.Run("does not log when error set", func(t *testing.T) {
+		var out bytes.Buffer
+		logger := log.MemoryWith(&out, log.SetLevel(log.ErrorLevel))
+		logger.Debug("test")
+		require.Equal(t, 0, out.Len())
 	})
-	AfterEach(func() {
-		out.Reset()
+	t.Run("level", func(t *testing.T) {
+		logger := log.Memory(log.SetLevel(log.FatalLevel))
+		require.Equal(t, log.FatalLevel, logger.Level())
 	})
-})
+}
